@@ -1,17 +1,24 @@
-{% extends 'pages/base.html' %} 
- 
-{% block title %} {{title}} {% endblock %} 
-{% block header_title %} {{subtitle}} {% endblock %} 
- 
+{% extends 'pages/base.html' %}
+{% block title %} About us - Online Store {% endblock %}
+{% block header_title %} About us {% endblock %}
 {% block content %} 
-<div class="container"> 
-  <div class="row"> 
-    <div class="col-lg-4 ms-auto"> 
-      <p class="lead">{{description}}</p> 
-    </div> 
-    <div class="col-lg-4 me-auto"> 
-      <p class="lead">{{author}}</p> 
-    </div> 
-  </div> 
-</div> 
-{% endblock %} 
+<div class="container">
+  <div class="row">
+    <div class="col-lg-4 ms-auto">
+      <p class="lead"><div class="text-center" >
+        ¿Who are we?
+        </div>
+      </p>
+    </div>
+    <div class="col-lg-4 me-auto">
+      <p class="lead">
+        <section>
+        <div class="text-center" >
+        developed by: Jose David Valencia
+        </section>
+      </div>
+    </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -22,22 +22,13 @@
             <div class="navbar-nav ms-auto">   
             <a class="nav-link active" href="{% url 'home' %}">Home</a> 
             <a class="nav-link active" href="{% url 'about' %}">About</a> 
-            <div class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: white;">
-                    Products
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdownProducts">
-                    <li><a class="dropdown-item" href="{% url 'index' %}">Products</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="{% url 'form' %}">Create Product</a></li>
-                </ul>
-        </div> 
-        <a class="nav-link active" href="{% url 'contact' %}">Contact</a>
-    </div>
-</div>
-</div> 
-
-    </nav> 
+            <a class="nav-link active" href="{% url 'contact' %}">Contact</a>
+            <a class="nav-link active" href="{% url 'index' %}">Products</a>
+            <a class="nav-link active" href="{% url 'contact' %}">Create Products</a>            
+            </div>
+        </div>
+    </div> 
+</nav> 
 
     
     <header class="masthead bg-primary text-white text-center py-4"> 
@@ -58,8 +49,8 @@
         <div class="container"> 
         <small> 
             Copyright - <a class="text-reset fw-bold text-decoration-none" target="_blank" 
-            href="https://twitter.com/danielgarax"> 
-            Daniel Correa 
+            href="https://twitter.com/AlbertoAndresD1"> 
+            Alberto Diaz
             </a> 
         </small> 
         </div> 
