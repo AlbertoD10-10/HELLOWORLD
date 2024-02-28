@@ -1,18 +1,39 @@
-from django.shortcuts import render , redirect , get_object_or_404
+
+from django.urls import reverse
+from django.http import HttpResponseRedirect , HttpResponse 
 from django.views.generic import TemplateView , ListView
 from django.views import View 
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 from django import forms
+from django.shortcuts import render , redirect , get_object_or_404
 from .models import Product 
- 
-class Product: 
-    products = [ 
-        {"id":"1", "name":"TV", "description":"Best TV", "price":50}, 
-        {"id":"2", "name":"iPhone", "description":"Best iPhone", "price":150}, 
-        {"id":"3", "name":"Chromecast", "description":"Best Chromecast", "price":80}, 
-        {"id":"4", "name":"Glasses", "description":"Best Glasses", "price":30} 
-    ] 
+
+
+class HomePageView(TemplateView): 
+    template_name = "pages/home.html"
+
+class AboutPageView(TemplateView): 
+    template_name = 'pages/about.html' 
+
+    def get_context_data(self, **kwargs): 
+        context = super().get_context_data(**kwargs) 
+        context.update({ 
+            "title": "About us - Online Store", 
+            "subtitle": "About us", 
+            "description": "This is an about page ...", 
+            "author": "Developed by: Alberto Diaz", 
+        }) 
+    
+        return context 
+
+class ContactPageView(View):
+    template_name = 'pages/contact.html'
+    def get(self, request):
+        viewData = {}
+        viewData["email"] = "example@eafit.edu.co"
+        viewData["address"] =  "cra 1231 # as - bc"
+        viewData["phoneNumber"] = "3128861871"
+
+        return render(request, self.template_name, viewData)
 
 class ProductIndexView(View): 
     template_name = 'products/index.html' 
@@ -24,7 +45,7 @@ class ProductIndexView(View):
         viewData["products"] = Product.objects.all() 
     
         return render(request, self.template_name, viewData) 
-
+    
 class ProductShowView(View): 
     template_name = 'products/show.html' 
  
@@ -57,34 +78,6 @@ class ProductListView(ListView):
         context['subtitle'] = 'List of products' 
         return context    
 
-
-class HomePageView(TemplateView): 
-    template_name = "pages/home.html"
-
-class AboutPageView(TemplateView): 
-    template_name = 'pages/about.html' 
-
-    def get_context_data(self, **kwargs): 
-        context = super().get_context_data(**kwargs) 
-        context.update({ 
-            "title": "About us - Online Store", 
-            "subtitle": "About us", 
-            "description": "This is an about page ...", 
-            "author": "Developed by: Alberto Diaz", 
-        }) 
-    
-        return context 
-    
-class ContactPageView(View):
-    template_name = 'pages/contact.html'
-    def get(self, request):
-        viewData = {}
-        viewData["email"] = "example@eafit.edu.co"
-        viewData["address"] =  "cra 1231 # as - bc"
-        viewData["phoneNumber"] = "3128861871"
-
-        return render(request, self.template_name, viewData)
-
 class ProductForm(forms.Form):
     name = forms.CharField(required=True)
     price = forms.FloatField(required=True)
@@ -97,7 +90,7 @@ class ProductForm(forms.Form):
         return price
     
 class ProductCreateView(View):
-    template_name = 'pages/products/create.html'
+    template_name = 'pages/Products/create.html'
 
     def get(self, request):
         form = ProductForm()
@@ -128,7 +121,103 @@ class ProductCreateView(View):
             viewData["form"] = form
             return render(request, self.template_name, viewData)
         
+    def product_created(request):
+        return render(request, 'Products/success.html')
         
+class CartView(View): 
+    template_name = 'cart/index.html' 
+
+    def get(self, request): 
+        # Simulated database for products 
+        products = {} 
+        products[121] = {'name': 'Tv samsung', 'price': '1000'} 
+        products[11] = {'name': 'Iphone', 'price': '2000'} 
+
+        # Get cart products from session 
+        cart_products = {} 
+        cart_product_data = request.session.get('cart_product_data', {}) 
+
+        for key, product in products.items(): 
+            if str(key) in cart_product_data.keys(): 
+                cart_products[key] = product 
+
+        # Prepare data for the view 
+        view_data = { 
+            'title': 'Cart - Online Store', 
+            'subtitle': 'Shopping Cart', 
+            'products': products, 
+            'cart_products': cart_products 
+        } 
+
+        return render(request, self.template_name, view_data) 
+
+    def post(self, request, product_id): 
+        # Get cart products from session and add the new product 
+        cart_product_data = request.session.get('cart_product_data', {}) 
+        cart_product_data[product_id] = product_id 
+        request.session['cart_product_data'] = cart_product_data 
+
+        return redirect('cart_index') 
+        
+class CartRemoveAllView(View): 
+    def post(self, request): 
+        # Remove all products from cart in session 
+        if 'cart_product_data' in request.session: 
+            del request.session['cart_product_data'] 
+
+        return redirect('cart_index')
+    
+def ImageViewFactory(image_storage): 
+    class ImageView(View): 
+        template_name = 'images/index.html' 
+
+        def get(self, request): 
+            image_url = request.session.get('image_url', '') 
+
+            return render(request, self.template_name, {'image_url': image_url}) 
+
+        def post(self, request): 
+            image_url = image_storage.store(request) 
+            request.session['image_url'] = image_url 
+
+            return redirect('image_index') 
+
+    return ImageView
+
+class ImageViewNotDI(View): 
+    template_name = 'images/index.html' 
+
+    def get(self, request): 
+        image_url = request.session.get('image_url', '') 
+
+        return render(request, self.template_name, {'image_url': image_url}) 
+
+    def post(self, request): 
+        image_storage = ImageLocalStorage() 
+        image_url = image_storage.store(request) 
+        request.session['image_url'] = image_url 
+
+        return redirect('image_index')
+
+
+class Product: 
+    products = [ 
+        {"id":"1", "name":"TV", "description":"Best TV", "price":50}, 
+        {"id":"2", "name":"iPhone", "description":"Best iPhone", "price":150}, 
+        {"id":"3", "name":"Chromecast", "description":"Best Chromecast", "price":80}, 
+        {"id":"4", "name":"Glasses", "description":"Best Glasses", "price":30} 
+    ] 
+
+
+
+
+
+
+    
+
+
+    
+
 class SuccessPageView(TemplateView):
     template_name = 'pages/products/success.html'
     
